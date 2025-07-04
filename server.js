@@ -8,7 +8,10 @@ const usersRouter = require('./routes/users');
 
 const authRoutes = require('./routes/authRoutes');
 const testRoute = require('./routes/test');
-app.use('/api/test-db', testRoute)
+const authRoutes = require('./routes/auth'); // Chemin vers le fichier auth.js
+app.use(express.json()); // pour lire le JSON du body
+app.use('/api/auth', authRoutes); // => /api/auth/login sera accessible
+app.use('/api/test-db', testRoute);
 app.use('/api/pending', pendingRouter);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRouter); // 🔗 Cette ligne est importante

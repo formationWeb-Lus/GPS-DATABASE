@@ -1,33 +1,34 @@
-// backend/routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
+const pool = require('../database'); // adapte le chemin si besoin
 
-// Exemple simple d'endpoint POST /api/auth/login
-router.post('/login', (req, res) => {
-  const { phone, name } = req.body;
+// Route POST /api/auth/register
+router.post('/register', async (req, res) => {
+  const { firstname, lastname, phone, plan, vehicleCount } = req.body;
 
-  // Ici tu ferais la vérification dans ta base de données PostgreSQL
-  // Pour l'exemple on répond juste OK si les infos sont présentes
-  if (!phone || !name) {
-    return res.status(400).json({ error: 'Nom et téléphone requis' });
+  if (!firstname || !lastname || !phone) {
+    return res.status(400).json({ error: true, message: 'Champs manquants' });
   }
 
-  // TODO: Vérifier dans la base que l'utilisateur existe, mot de passe, etc.
+  try {
+    const query = `
+      INSERT INTO pending_accounts (firstname, lastname, phone, plan, vehicle_count)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, firstname, lastname, phone, plan, vehicle_count, created_at
+    `;
+    const values = [firstname, lastname, phone, plan || null, vehicleCount || null];
 
-  res.json({ message: 'Connexion réussie', user: { phone, name } });
-});
+    const result = await pool.query(query, values);
 
-// Exemple simple d'endpoint POST /api/auth/register
-router.post('/register', (req, res) => {
-  const { firstName, lastName, phone } = req.body;
-
-  if (!firstName || !lastName || !phone) {
-    return res.status(400).json({ error: 'Tous les champs sont requis' });
+    res.status(201).json({ 
+      error: false,
+      message: 'Inscription réussie',
+      data: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Erreur DB register:', err);
+    res.status(500).json({ error: true, message: 'Erreur serveur' });
   }
-
-  // TODO: Enregistrer l'utilisateur dans la base PostgreSQL
-
-  res.json({ message: 'Inscription réussie', user: { firstName, lastName, phone } });
 });
 
 module.exports = router;
