@@ -7,7 +7,9 @@ const pendingRouter = require('./routes/pendingAccounts');
 const usersRouter = require('./routes/users');
 const authRoutes = require('./routes/auth'); // route pour login
 const testRoute = require('./routes/test');
+const verifyCodeRoute = require('./routes/verifyCode');
 
+app.use('/api/verify-code', verifyCodeRoute);
 // 📌 Utilisation des routes
 app.use('/api/auth', authRoutes);         // /api/auth/login
 app.use('/api/test-db', testRoute);       // /api/test-db
